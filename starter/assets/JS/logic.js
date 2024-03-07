@@ -159,11 +159,11 @@
         // Navigate back to the start page
         window.location.href = "start.html"; // Change the URL to your actual start page
     
+    });
+})
     
     
 
     
-    });
-})
     
     
