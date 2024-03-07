@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
 
     const time = document.getElementById("time");
     
@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const questionTitle = document.getElementById("question-title");
     const choices = document.getElementById("choices");
     
-    const endScreen = document.getElementById("endScreen");
-    const finalScore = document.getElementById("finalScore");
+    const endScreen = document.getElementById("end-screen");
+    const finalScore = document.getElementById("final-score");
     const initials = document.getElementById("initials");
     const submit = document.getElementById("submit");
     
@@ -42,6 +42,10 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentQuestion = {};
     let questionNum = 0;
     let correctAnswer = "";
+
+    function updateTimerDisplay() {
+        time.textContent = timeLeft;
+    }
     
     
     function startQuiz() {
@@ -70,22 +74,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     function loadQuestion() {
-    
         const currentQuestion = questions[currentQuestionIndex];
         const choicesContainer = document.getElementById("choices");
     
-        document.getElementById("question-title").textContent = currentQuestion.title;
+        document.getElementById("question-title").textContent = currentQuestion.question;
     
         choicesContainer.innerHTML = "";
     
-        currentQuestion.choices.forEach(function(choice) {
-            const button = document.createElement("button");
-            button.textContent = choice;
-            button.addEventListener("click", function() {
-                handleChoice(choice);
+        // Check if currentQuestion and currentQuestion.answers are defined and not null
+        if (currentQuestion && Array.isArray(currentQuestion.answers)) {
+            currentQuestion.answers.forEach(function (choice) {
+                const button = document.createElement("button");
+                button.textContent = `${choice[0]}. ${choice[1]}`;
+                button.addEventListener("click", function () {
+                    handleChoice(choice[0]);
+                });
+                choicesContainer.appendChild(button);
             });
-            choicesContainer.appendChild(button);
-        });
+        } else {
+            console.error("Invalid question format or missing choices.");
+        }
+    }
+
+    function showFeedback(result) {
+        const feedback = document.getElementById("feedback");
+        feedback.textContent = result === "correct" ? "Correct!" : "Incorrect!";
+        feedback.classList.remove("hide");
+    
+        
+        setTimeout(() => {
+            feedback.classList.add("hide");
+        }, 1000); // Adjust the delay (in milliseconds) as needed
     }
     
     function handleChoice(choice) {
@@ -105,13 +124,15 @@ document.addEventListener("DOMContentLoaded", function () {
             loadQuestion();
         } else {
             endQuiz();
+            
         }
     }
+
     
     function endQuiz() {
         clearInterval(timerInterval);
         questionsContainer.classList.add("hide");
-        end-screen.classList.remove("hide");
+        endScreen.classList.remove("hide"); 
         finalScore.textContent = score;
     }
     
@@ -119,21 +140,30 @@ document.addEventListener("DOMContentLoaded", function () {
     
     document.getElementById("submit").addEventListener("click", function() {
         const initialsInput = initials.value.trim();
-        if (initials === "") {
+        if (initialsInput === "") {
             alert("Please enter your initials");
             return;
         }
+        const userScore = {
+            initials: initialsInput,
+            score: score
         
+        };
+        const highScores = JSON.parse(localStorage.getItem("highScores")) || [];
+        highScores.push(userScore);
+        localStorage.setItem("highScores", JSON.stringify(highScores));
+        window.location.href = "highscores.html";
     })
+    document.getElementById("goBackButton").addEventListener("click", function(event) {
+        event.preventDefault(); // Prevents the default form submission behavior
+        // Navigate back to the start page
+        window.location.href = "start.html"; // Change the URL to your actual start page
     
-    const userScore = {
-        initials: initials,
-        score: score
-    };
     
-    // const highScores = JSON.parse(localStorage.getItem("highScores")) || [];
-    // highScores.push(userScore);
-    // localStorage.setItem("highScores", JSON.stringify(highScores));
     
-    // window.location.href = "highscores.html";
-    })
+
+    
+    });
+})
+    
+    
